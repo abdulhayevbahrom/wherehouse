@@ -1,0 +1,116 @@
+.layout {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background-color: #0a3d3a;
+}
+
+.layout_left {
+  width: 17%;
+  height: 100%;
+  z-index: 10;
+  /* background-color: #b8e7fa; */
+}
+
+.layout_right {
+  width: 83%;
+  height: 100vh;
+  background-color: rgb(231, 231, 243);
+  overflow: hidden;
+}
+
+.main-content {
+  width: 100%;
+  height: calc(100vh - 50px);
+  overflow: auto;
+  padding: 0 15px;
+  background: #fff;
+}
+
+@media (max-width: 768px) {
+  .layout_left {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    transition: 0.3s;
+  }
+  .open_s {
+    left: 0;
+    width: 250px;
+  }
+
+  .layout_right {
+    width: 100%;
+  }
+}
+
+/* Media query: Maksimal kenglik 500px */
+@media (max-width: 500px) {
+  .layout {
+    flex-direction: column;
+    /* padding-bottom: 60px !important; */
+  }
+
+  :where(.css-dev-only-do-not-override-1drr2mu).ant-tabs-top > .ant-tabs-nav,
+  :where(.css-dev-only-do-not-override-1drr2mu).ant-tabs-bottom > .ant-tabs-nav,
+  :where(.css-dev-only-do-not-override-1drr2mu).ant-tabs-top
+    > div
+    > .ant-tabs-nav,
+  :where(.css-dev-only-do-not-override-1drr2mu).ant-tabs-bottom
+    > div
+    > .ant-tabs-nav {
+    margin: 0 0 4px 0;
+  }
+
+  /* .layout_right {
+    background: #000;
+  }
+
+  .layout_left {
+    width: 100%;
+    height: 60px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background: #0a3d3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .layout_right {
+    width: 100%;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    padding: 0px;
+  }
+
+  .layout_right::-webkit-scrollbar {
+    width: 0px;
+  }
+
+  .main-content {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: 5px;
+    background: #fff;
+  } */
+}
+
+/* Media query: Minimal kenglik 350px */
+@media (max-width: 350px) {
+  /* .layout_left {
+    height: 50px;
+  } */
+
+  /* .layout_right {
+    height: calc(100vh - 50px);
+  }
+
+  .main-content {
+    padding: 5px;
+  } */
+}

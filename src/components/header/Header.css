@@ -1,0 +1,46 @@
+header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #0a3d3a;
+
+  padding: 15px;
+  color: #fff;
+  height: 50px;
+  padding-top: 15px;
+}
+
+.header_left {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.dollarRate {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  font-size: 14px;
+
+  input {
+    width: 100px;
+    background-color: #ffffff35;
+    border: none;
+    text-indent: 7px;
+    color: #fff;
+  }
+}
+
+/* Media 768 */
+@media screen and (max-width: 768px) {
+  .header_left {
+    display: flex;
+    font-size: 20px;
+
+    span {
+      font-size: 17px;
+      font-weight: bold;
+    }
+  }
+}
