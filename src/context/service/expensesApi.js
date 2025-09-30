@@ -1,4 +1,4 @@
-import { api } from "../api";
+import { api } from "./api";
 
 // router.get("/expense/all", ExpenseController.getExpenses);
 // router.post("/expense/create", ExpenseController.createExpense);
