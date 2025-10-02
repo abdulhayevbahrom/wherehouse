@@ -1,60 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Table, Tag, Modal, Input, message, Form } from "antd";
 import {
-  useGetSuppliersQuery,
   useUpdateSupplierMutation,
+  useGetSupplierDebtQuery,
+  usePayToSupplierMutation,
 } from "../../context/service/supplierApi";
-import {
-  useGetOmborBySupplierQuery,
-  usePaySupplierDebtMutation,
-} from "../../context/service/omborApi";
+import { useGetOmborBySupplierQuery } from "../../context/service/omborApi";
 import { EditOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 
 function Suppliers() {
   const [form] = Form.useForm();
+
   const [updateSupplier] = useUpdateSupplierMutation();
-  const { data, isLoading, isError } = useGetSuppliersQuery();
-  const [supplierId, setSupplierId] = React.useState(null);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [payToSupplier] = usePayToSupplierMutation();
 
-  const [selectedOmbor, setSelectedOmbor] = React.useState(null);
-  const [isPayModalOpen, setIsPayModalOpen] = React.useState(false);
-  const [payAmount, setPayAmount] = React.useState("");
+  const { data: supplierDebtData } = useGetSupplierDebtQuery();
 
-  const [paySupplierDebt, { isLoading: isPaying }] =
-    usePaySupplierDebtMutation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [supplierId, setSupplierId] = useState(null);
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [payAmount, setPayAmount] = useState("");
+  const [openEditModal, setOpenEditModal] = useState(false);
 
+  const [getSupplierSales, setGetSupplierSales] = useState(null);
+  console.log(getSupplierSales);
   const {
     data: omborData,
     isFetching,
     refetch,
-  } = useGetOmborBySupplierQuery(supplierId, {
-    skip: !supplierId,
+  } = useGetOmborBySupplierQuery(getSupplierSales, {
+    skip: !getSupplierSales,
   });
 
-  const [openEditModal, setOpenEditModal] = React.useState(false);
+  console.log("##", supplierDebtData?.innerData);
 
-  const suppliers = data?.innerData || [];
+  const suppliers = supplierDebtData?.innerData || [];
 
   const handlePayment = async () => {
     if (!payAmount || isNaN(payAmount)) {
-      return message.error("To'lov summasini kiriting");
+      return toast.error("To'lov summasini kiriting");
     }
     try {
-      await paySupplierDebt({
-        supplierId,
-        omborId: selectedOmbor._id,
+      await payToSupplier({
+        supplierId: supplierId?.supplierId,
         amount: Number(payAmount),
       }).unwrap();
 
-      message.success("To'lov muvaffaqiyatli bajarildi");
+      toast.success("To'lov muvaffaqiyatli bajarildi");
       setIsPayModalOpen(false);
       setPayAmount("");
-      setSelectedOmbor(null);
       refetch();
     } catch (err) {
-      message.error(err?.data?.message || "Xatolik yuz berdi");
+      toast.error(err?.data?.message || "Xatolik yuz berdi");
     }
   };
 
@@ -69,60 +67,52 @@ function Suppliers() {
       dataIndex: "phone",
       key: "phone",
     },
-    {
-      title: "Qarz (soldo)",
-      dataIndex: "initialDebt",
-      key: "initialDebt",
-      render: (initialDebt) => (
-        <span
-          style={{
-            color: "red",
-          }}
-        >
-          {initialDebt}
-        </span>
-      ),
-    },
-    {
-      title: "Balans",
-      dataIndex: "balance",
-      key: "balance",
-      render: (balance) => (
-        <span
-          style={{
-            color: balance < 0 ? "red" : balance > 0 ? "green" : "gray",
-          }}
-        >
-          {balance}
-        </span>
-      ),
-    },
-    {
-      title: "Holati",
-      dataIndex: "status",
-      key: "status",
-      render: (status, record) => {
-        let color =
-          status === "qarzdor"
-            ? "red"
-            : status === "haqdor"
-            ? "green"
-            : "default";
-        return <Tag color={color}>{status}</Tag>;
-      },
-    },
+    // {
+    //   title: "Qarz (soldo)",
+    //   dataIndex: "initialDebt",
+    //   key: "initialDebt",
+    //   render: (initialDebt) => (
+    //     <span
+    //       style={{
+    //         color: "red",
+    //       }}
+    //     >
+    //       {initialDebt}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   title: "Balans",
+    //   dataIndex: "balance",
+    //   key: "balance",
+    //   render: (balance) => (
+    //     <span
+    //       style={{
+    //         color: balance < 0 ? "red" : balance > 0 ? "green" : "gray",
+    //       }}
+    //     >
+    //       {balance}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   title: "Holati",
+    //   dataIndex: "status",
+    //   key: "status",
+    //   render: (status, record) => {
+    //     let color =
+    //       status === "qarzdor"
+    //         ? "red"
+    //         : status === "haqdor"
+    //         ? "green"
+    //         : "default";
+    //     return <Tag color={color}>{status}</Tag>;
+    //   },
+    // },
     {
       title: "Umumiy qarz",
-      dataIndex: "status",
-      key: "status",
       render: (status, record) => {
-        let color =
-          status === "qarzdor"
-            ? "red"
-            : status === "haqdor"
-            ? "green"
-            : "default";
-        return <Tag color={color}>{-record.initialDebt + record.balance}</Tag>;
+        return <span style={{ color: "red" }}>{record?.debt}</span>;
       },
     },
     {
@@ -130,7 +120,7 @@ function Suppliers() {
       render: (_, record) => (
         <Button
           onClick={() => {
-            setSupplierId(record._id);
+            setGetSupplierSales(record.supplierId);
             setIsModalOpen(true);
           }}
           type="primary"
@@ -152,51 +142,13 @@ function Suppliers() {
         ></Button>
       ),
     },
-  ];
-
-  const omborColumns = [
-    {
-      title: "Mahsulot",
-      dataIndex: "title",
-      key: "title",
-      render: (_, record) =>
-        record.products.map((p) => (
-          <div key={p._id}>
-            {p.title} ({p.org_qty} x {p.price})
-          </div>
-        )),
-    },
-    {
-      title: "Umumiy summa",
-      dataIndex: "totalPrice",
-      key: "totalPrice",
-    },
-    {
-      title: "To‘langan",
-      dataIndex: "paidAmount",
-      key: "paidAmount",
-    },
-    {
-      title: "Qarz",
-      dataIndex: "debtAmount",
-      key: "debtAmount",
-      render: (debt) => (
-        <span style={{ color: debt > 0 ? "red" : "green" }}>{debt}</span>
-      ),
-    },
-    {
-      title: "Sana",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (date) => new Date(date).toLocaleDateString("uz-UZ"),
-    },
     {
       title: "To'lash",
       render: (_, record) => (
         <Button
           type="primary"
           onClick={() => {
-            setSelectedOmbor(record);
+            setSupplierId(record);
             setIsPayModalOpen(true);
           }}
         >
@@ -206,8 +158,41 @@ function Suppliers() {
     },
   ];
 
-  if (isLoading) return <p>Yuklanmoqda...</p>;
-  if (isError) return <p>Xatolik yuz berdi</p>;
+  const omborColumns = [
+    {
+      title: "Mahsulot",
+      dataIndex: "title",
+      key: "title",
+      render: (_, record) =>
+        record.products.map((p) => <div key={p._id}>{p.title}</div>),
+    },
+    {
+      title: "narxi",
+      dataIndex: "price",
+      key: "price",
+      render: (_, record) =>
+        record.products.map((p) => <div key={p._id}>{p.price}</div>),
+    },
+    {
+      title: "Miqdori",
+      dataIndex: "quantity",
+      key: "quantity",
+      render: (_, record) =>
+        record.products.map((p) => <div key={p._id}>{p.quantity}</div>),
+    },
+    {
+      title: "Umumiy summa",
+      dataIndex: "totalPrice",
+      key: "totalPrice",
+      render: (v, record) => v.toLocaleString(),
+    },
+    {
+      title: "Sana",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date) => new Date(date).toLocaleDateString("uz-UZ"),
+    },
+  ];
 
   const handleUpdate = async (values) => {
     try {
@@ -229,7 +214,12 @@ function Suppliers() {
   return (
     <div style={{ padding: 20 }}>
       <h3>Taminotchilardan qarzlar</h3>
-      <Table rowKey="_id" columns={columns} dataSource={suppliers} />
+      <Table
+        rowKey="_id"
+        columns={columns}
+        dataSource={[...suppliers]}
+        pagination={false}
+      />
 
       {/* edit  modal */}
       <Modal
@@ -287,16 +277,11 @@ function Suppliers() {
         open={isPayModalOpen}
         onCancel={() => setIsPayModalOpen(false)}
         onOk={handlePayment}
-        confirmLoading={isPaying}
         okText="To‘lash"
         cancelText="Bekor qilish"
       >
         <p>
-          Jami: <b>{selectedOmbor?.totalPrice}</b>
-        </p>
-        <p>
-          Qolgan qarz:{" "}
-          <b style={{ color: "red" }}>{selectedOmbor?.debtAmount}</b>
+          Qolgan qarz: <b style={{ color: "red" }}>{supplierId?.debt} </b>
         </p>
         <Input
           type="number"

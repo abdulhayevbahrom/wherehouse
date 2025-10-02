@@ -13,7 +13,7 @@ export const omborApi = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Ombor"],
+      invalidatesTags: ["Ombor","Supplier"],
     }),
 
     updateOmbor: builder.mutation({
@@ -37,17 +37,6 @@ export const omborApi = api.injectEndpoints({
     getOmborBySupplier: builder.query({
       query: (id) => `/ombor/supplier/${id}`,
       providesTags: ["Ombor"],
-    }),
-
-    // /ombor/pay/:supplierId/:omborId
-
-    paySupplierDebt: builder.mutation({
-      query: (data) => ({
-        url: `/ombor/pay/${data.supplierId}/${data.omborId}`,
-        method: "POST",
-        body: data,
-      }),
-      invalidatesTags: ["Ombor"],
     }),
   }),
 });

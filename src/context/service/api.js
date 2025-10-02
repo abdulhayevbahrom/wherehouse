@@ -2,8 +2,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Bazaviy query
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: "https://wherehouse.medme.uz/api",
-  // baseUrl: "http://localhost:4100/api",
+  // baseUrl: "https://wherehouse.medme.uz/api",
+  baseUrl: "http://localhost:4100/api",
   prepareHeaders: (headers) => {
     const token = localStorage.getItem("token");
     if (token) {

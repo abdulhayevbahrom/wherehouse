@@ -23,6 +23,24 @@ export const agentApi = api.injectEndpoints({
       }),
       invalidatesTags: ["Supplier"],
     }),
+
+    // /supplier/debt/:id
+
+    getSupplierDebt: builder.query({
+      query: () => `/supplier/debt`,
+      providesTags: ["Supplier"],
+    }),
+
+    // /supplier/pay
+
+    payToSupplier: builder.mutation({
+      query: (data) => ({
+        url: "/supplier/pay",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Supplier"],
+    }),
   }),
 });
 
@@ -30,4 +48,6 @@ export const {
   useGetAllQuery,
   useGetSuppliersQuery,
   useUpdateSupplierMutation,
+  useGetSupplierDebtQuery,
+  usePayToSupplierMutation,
 } = agentApi;
