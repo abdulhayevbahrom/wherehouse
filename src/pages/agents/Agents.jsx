@@ -118,7 +118,7 @@ function Agents() {
       >
         <h3>Dastavchik</h3>
         <Button type="primary" onClick={() => setIsModalOpen(true)}>
-          Yangi agent
+          Yangi dastavchik
         </Button>
       </div>
       <Modal
@@ -129,7 +129,7 @@ function Agents() {
           form.resetFields();
         }}
         open={isModalOpen}
-        title={isEditMode ? "Agentni tahrirlash" : "Yangi agent"}
+        title={isEditMode ? "Agentni tahrirlash" : "Yangi dastavchik"}
         footer={null}
       >
         <Form
@@ -146,8 +146,8 @@ function Agents() {
             <Input placeholder="Ism familiyani kiriting" />
           </Form.Item>
 
-          <Form.Item label="Phone" name="phone">
-            <Input placeholder="+998XXXXXXXXX" maxLength={12} />
+          <Form.Item label="Telefon" name="phone">
+            <Input placeholder="XX-XXX-XX-XX" maxLength={12} />
           </Form.Item>
 
           <Form.Item

@@ -13,8 +13,6 @@ function Debtors() {
   const { data: transactionsData } = useGetAllTransactionsQuery();
   const [payDebt] = usePayDebtMutation();
 
-  console.log(debtorsData);
-
   let debtors = debtorsData?.innerData || [];
 
   const [isProductsModalOpen, setIsProductsModalOpen] = useState(false);
@@ -23,6 +21,7 @@ function Debtors() {
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [payForm] = Form.useForm();
+  console.log(">?selectedTransaction", selectedTransaction);
 
   // To'lov qilish
   const handlePayDebt = async (values) => {
@@ -40,11 +39,6 @@ function Debtors() {
     }
   };
 
-  // // Faqat qarzdorlarni olish
-  // const debtors = transactionsData?.innerData?.filter(
-  //   (t) => t.remainingDebt > 0
-  // );
-
   const columns = [
     {
       title: "Agent",
@@ -55,17 +49,22 @@ function Debtors() {
       title: "Qarz (soldo)",
       render: (v, record) => record?.initialDebt || 0,
     },
-    {
-      title: "Jami",
-      dataIndex: "paidAmount",
-      key: "paidAmount",
-      render: (v, record) =>
-        record.products?.reduce((acc, p) => acc + p.price * p.quantity, 0),
-    },
+    // {
+    //   title: "Jami",
+    //   dataIndex: "paidAmount",
+    //   key: "paidAmount",
+    //   render: (_, record) =>
+    //     record?.transactions?.reduce((total, t) => {
+    //       const sumProducts =
+    //         t.products?.reduce((acc, p) => acc + p.price * p.quantity, 0) || 0;
+    //       return total + sumProducts;
+    //     }, 0),
+    // },
+
     {
       title: "Qoldiq qarz",
-      dataIndex: "remainingDebt",
-      key: "remainingDebt",
+      dataIndex: "totalRemainingDebt",
+      key: "totalRemainingDebt",
     },
     // umumiy qarz
     {
@@ -79,7 +78,7 @@ function Debtors() {
           type="primary"
           icon={<EyeOutlined />}
           onClick={() => {
-            setSelectedProducts(record.products || []);
+            setSelectedProducts(record.transactions || []);
             setIsProductsModalOpen(true);
           }}
         >
@@ -87,22 +86,26 @@ function Debtors() {
         </Button>
       ),
     },
-    {
-      title: "To‘lov",
-      key: "action",
-      render: (_, record) => (
-        <Button
-          type="primary"
-          onClick={() => {
-            setSelectedTransaction(record);
-            setIsPayModalOpen(true);
-          }}
-        >
-          To‘lash
-        </Button>
-      ),
-    },
+    // {
+    //   title: "To‘lov",
+    //   key: "action",
+    //   render: (_, record) => (
+    //     <Button
+    //       type="primary"
+    //       onClick={() => {
+    //         console.log("record", record);
+
+    //         setSelectedTransaction(record.transactions);
+    //         setIsPayModalOpen(true);
+    //       }}
+    //     >
+    //       To‘lash
+    //     </Button>
+    //   ),
+    // },
   ];
+
+  let debt = selectedTransaction?.remainingDebt || 0;
 
   return (
     <div>
@@ -119,7 +122,7 @@ function Debtors() {
       {/* Mahsulotlar modal */}
       <Modal
         open={isProductsModalOpen}
-        title="Transaction mahsulotlari"
+        title="Sotuv malumotlari"
         footer={null}
         onCancel={() => {
           setIsProductsModalOpen(false);
@@ -134,23 +137,59 @@ function Debtors() {
           columns={[
             {
               title: "Nomi",
-              dataIndex: "title",
+              dataIndex: ["products", "title"],
               key: "title",
             },
             {
               title: "Soni",
-              dataIndex: "quantity",
+              dataIndex: ["products", "quantity"],
               key: "quantity",
             },
             {
               title: "Narxi",
-              dataIndex: "price",
+              dataIndex: ["products", "price"],
               key: "price",
             },
             {
               title: "Jami",
-              dataIndex: "totalPrice",
+              dataIndex: ["products", "totalPrice"],
               key: "totalPrice",
+            },
+            {
+              title: "Qoldiq qarz",
+              dataIndex: "remainingDebt",
+              key: "remainingDebt",
+              render: (v) => <span style={{ color: "red" }}>{v}</span>,
+            },
+            {
+              title: "Sana",
+              dataIndex: "date",
+              key: "date",
+              render: (v) => {
+                const d = new Date(v);
+                const day = String(d.getDate()).padStart(2, "0");
+                const month = String(d.getMonth() + 1).padStart(2, "0");
+                const year = d.getFullYear();
+                return `${day}-${month}-${year}`;
+              },
+            },
+            {
+              title: "To‘lov",
+              key: "action",
+              render: (_, record) => (
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    console.log("record", record);
+                    setIsPayModalOpen(true);
+                    setSelectedTransaction(record);
+                    setIsProductsModalOpen(false);
+                    // setIsPayModalOpen(true);
+                  }}
+                >
+                  To‘lash
+                </Button>
+              ),
             },
           ]}
         />
@@ -168,16 +207,14 @@ function Debtors() {
       >
         <Form form={payForm} layout="vertical" onFinish={handlePayDebt}>
           <Form.Item
-            label={`To‘lov summasi (Qolgan qarz: ${
-              selectedTransaction?.remainingDebt || 0
-            })`}
+            label={`To‘lov summasi (Qolgan qarz: ${debt})`}
             name="paymentAmount"
             rules={[
               { required: true, message: "To‘lov summasini kiriting" },
               () => ({
                 validator(_, value) {
                   if (!value) return Promise.resolve();
-                  if (value > selectedTransaction?.remainingDebt) {
+                  if (value > debt) {
                     return Promise.reject(
                       new Error(
                         "Qarz summasidan katta to‘lov kiritib bo‘lmaydi!"
@@ -197,7 +234,7 @@ function Debtors() {
             <Input
               type="number"
               placeholder="Summani kiriting"
-              max={selectedTransaction?.remainingDebt || 0}
+              max={debt || 0}
               min={1}
             />
           </Form.Item>

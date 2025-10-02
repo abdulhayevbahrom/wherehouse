@@ -292,9 +292,6 @@ function Suppliers() {
         cancelText="Bekor qilish"
       >
         <p>
-          Ombor ID: <b>{selectedOmbor?._id}</b>
-        </p>
-        <p>
           Jami: <b>{selectedOmbor?.totalPrice}</b>
         </p>
         <p>
