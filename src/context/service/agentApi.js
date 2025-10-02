@@ -16,7 +16,7 @@ export const agentApi = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Agent"],
+      invalidatesTags: ["Agent", "Dashboard"],
     }),
 
     updateAgent: builder.mutation({
@@ -25,7 +25,7 @@ export const agentApi = api.injectEndpoints({
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: ["Agent"],
+      invalidatesTags: ["Agent", "Dashboard"],
     }),
 
     deleteAgent: builder.mutation({
@@ -33,7 +33,7 @@ export const agentApi = api.injectEndpoints({
         url: `/agent/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Agent"],
+      invalidatesTags: ["Agent", "Dashboard"],
     }),
   }),
 });

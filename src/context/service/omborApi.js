@@ -13,7 +13,7 @@ export const omborApi = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Ombor","Supplier"],
+      invalidatesTags: ["Ombor", "Supplier"],
     }),
 
     updateOmbor: builder.mutation({
@@ -22,7 +22,7 @@ export const omborApi = api.injectEndpoints({
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: ["Ombor"],
+      invalidatesTags: ["Ombor", "Supplier"],
     }),
 
     deleteOmbor: builder.mutation({
@@ -30,7 +30,7 @@ export const omborApi = api.injectEndpoints({
         url: `/ombor/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Ombor"],
+      invalidatesTags: ["Ombor", "Supplier"],
     }),
 
     // /ombor/supplier/:id"

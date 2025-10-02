@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import {
-  useGetAllTransactionsQuery,
   usePayDebtMutation,
   useGetDebtorsQuery,
+  useGetAgentDebtsQuery,
 } from "../../context/service/transactionApi";
 import { Button, Modal, Table, Form, Input } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
@@ -10,25 +10,72 @@ import { toast } from "react-toastify";
 
 function Debtors() {
   const { data: debtorsData } = useGetDebtorsQuery();
-  const { data: transactionsData } = useGetAllTransactionsQuery();
   const [payDebt] = usePayDebtMutation();
 
   let debtors = debtorsData?.innerData || [];
+  console.log(debtors);
 
   const [isProductsModalOpen, setIsProductsModalOpen] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState([]);
-
+  const [selectedAgentId, setSelectedProducts] = useState([]);
+  const { data: agentDebtData } = useGetAgentDebtsQuery(selectedAgentId, {
+    skip: !selectedAgentId,
+  });
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [payForm] = Form.useForm();
-  console.log(">?selectedTransaction", selectedTransaction);
+
+  const columns = [
+    {
+      title: "Agent",
+      dataIndex: ["fullname"],
+      key: "fullname",
+    },
+    {
+      title: "Telefon",
+      render: (v, record) => record?.phone || 0,
+    },
+    {
+      title: "Qarz",
+      render: (v, record) => record?.debt || 0,
+    },
+    {
+      title: "Mahsulotlar",
+      render: (_, record) => (
+        <Button
+          type="primary"
+          icon={<EyeOutlined />}
+          onClick={() => {
+            setSelectedProducts(record?.agentId);
+            setIsProductsModalOpen(true);
+          }}
+        >
+          Ko‘rish
+        </Button>
+      ),
+    },
+    {
+      title: "To‘lov",
+      key: "action",
+      render: (_, record) => (
+        <Button
+          type="primary"
+          onClick={() => {
+            setSelectedTransaction(record);
+            setIsPayModalOpen(true);
+          }}
+        >
+          To‘lash
+        </Button>
+      ),
+    },
+  ];
 
   // To'lov qilish
   const handlePayDebt = async (values) => {
     try {
       await payDebt({
-        transactionId: selectedTransaction._id,
-        paymentAmount: Number(values.paymentAmount),
+        agentId: selectedTransaction.agentId,
+        amount: Number(values.paymentAmount),
       }).unwrap();
 
       setIsPayModalOpen(false);
@@ -39,73 +86,7 @@ function Debtors() {
     }
   };
 
-  const columns = [
-    {
-      title: "Agent",
-      dataIndex: ["fullname"],
-      key: "fullname",
-    },
-    {
-      title: "Qarz (soldo)",
-      render: (v, record) => record?.initialDebt || 0,
-    },
-    // {
-    //   title: "Jami",
-    //   dataIndex: "paidAmount",
-    //   key: "paidAmount",
-    //   render: (_, record) =>
-    //     record?.transactions?.reduce((total, t) => {
-    //       const sumProducts =
-    //         t.products?.reduce((acc, p) => acc + p.price * p.quantity, 0) || 0;
-    //       return total + sumProducts;
-    //     }, 0),
-    // },
-
-    {
-      title: "Qoldiq qarz",
-      dataIndex: "totalRemainingDebt",
-      key: "totalRemainingDebt",
-    },
-    // umumiy qarz
-    {
-      title: "Umumiy qarz",
-      render: (v, record) => record?.totalRemainingDebt + record?.initialDebt,
-    },
-    {
-      title: "Mahsulotlar",
-      render: (_, record) => (
-        <Button
-          type="primary"
-          icon={<EyeOutlined />}
-          onClick={() => {
-            setSelectedProducts(record.transactions || []);
-            setIsProductsModalOpen(true);
-          }}
-        >
-          Ko‘rish
-        </Button>
-      ),
-    },
-    // {
-    //   title: "To‘lov",
-    //   key: "action",
-    //   render: (_, record) => (
-    //     <Button
-    //       type="primary"
-    //       onClick={() => {
-    //         console.log("record", record);
-
-    //         setSelectedTransaction(record.transactions);
-    //         setIsPayModalOpen(true);
-    //       }}
-    //     >
-    //       To‘lash
-    //     </Button>
-    //   ),
-    // },
-  ];
-
-  let debt = selectedTransaction?.remainingDebt || 0;
+  let debt = selectedTransaction?.debt || 0;
 
   return (
     <div>
@@ -117,6 +98,7 @@ function Debtors() {
         dataSource={debtors || []}
         columns={columns}
         pagination={false}
+        size="small"
       />
 
       {/* Mahsulotlar modal */}
@@ -128,70 +110,51 @@ function Debtors() {
           setIsProductsModalOpen(false);
           setSelectedProducts([]);
         }}
-        width={700}
+        width={1000} // Increased modal width
+        bodyStyle={{ maxHeight: "80vh", overflowY: "auto" }} // Scrollable modal body
       >
         <Table
           rowKey="_id"
-          dataSource={selectedProducts}
+          dataSource={agentDebtData?.innerData || []}
           pagination={false}
           columns={[
             {
-              title: "Nomi",
-              dataIndex: ["products", "title"],
+              title: "Mahsulot",
+              dataIndex: "products",
               key: "title",
-            },
-            {
-              title: "Soni",
-              dataIndex: ["products", "quantity"],
-              key: "quantity",
+              render: (products) =>
+                products.map((p) => <div key={p._id}>{p.title}</div>),
             },
             {
               title: "Narxi",
-              dataIndex: ["products", "price"],
+              dataIndex: "products",
               key: "price",
+              render: (products) =>
+                products.map((p) => <div key={p._id}>{p.price}</div>),
             },
             {
-              title: "Jami",
-              dataIndex: ["products", "totalPrice"],
-              key: "totalPrice",
+              title: "Miqdori",
+              dataIndex: "products",
+              key: "quantity",
+              render: (products) =>
+                products.map((p) => <div key={p._id}>{p.quantity}</div>),
             },
             {
-              title: "Qoldiq qarz",
-              dataIndex: "remainingDebt",
-              key: "remainingDebt",
-              render: (v) => <span style={{ color: "red" }}>{v}</span>,
+              title: "Umumiy summa",
+              dataIndex: "products",
+              key: "products",
+              render: (products) =>
+                products?.map((p) => <div key={p._id}>{p.price}</div>),
             },
             {
               title: "Sana",
               dataIndex: "date",
               key: "date",
-              render: (v) => {
-                const d = new Date(v);
-                const day = String(d.getDate()).padStart(2, "0");
-                const month = String(d.getMonth() + 1).padStart(2, "0");
-                const year = d.getFullYear();
-                return `${day}-${month}-${year}`;
-              },
-            },
-            {
-              title: "To‘lov",
-              key: "action",
-              render: (_, record) => (
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    console.log("record", record);
-                    setIsPayModalOpen(true);
-                    setSelectedTransaction(record);
-                    setIsProductsModalOpen(false);
-                    // setIsPayModalOpen(true);
-                  }}
-                >
-                  To‘lash
-                </Button>
-              ),
+              render: (date) => new Date(date).toLocaleDateString("uz-UZ"),
             },
           ]}
+          size="small"
+          scroll={{ x: 800 }}
         />
       </Modal>
 
@@ -207,7 +170,7 @@ function Debtors() {
       >
         <Form form={payForm} layout="vertical" onFinish={handlePayDebt}>
           <Form.Item
-            label={`To‘lov summasi (Qolgan qarz: ${debt})`}
+            label={`Qolgan qarz: ${debt}`}
             name="paymentAmount"
             rules={[
               { required: true, message: "To‘lov summasini kiriting" },

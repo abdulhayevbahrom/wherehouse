@@ -34,6 +34,6 @@ const baseQuery = async (args, api, extraOptions) => {
 export const api = createApi({
   reducerPath: "splitApi",
   baseQuery, // retry ni olib tashladik
-  tagTypes: ["Agent", "Expense", "Ombor"],
+  tagTypes: ["Agent", "Expense", "Ombor", "Dashboard", "Supplier"],
   endpoints: () => ({}),
 });

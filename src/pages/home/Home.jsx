@@ -240,7 +240,7 @@ const CARD_CONFIG = [
   },
   {
     key: "debts",
-    title: "Mijozlar Qarzi",
+    title: "Taminotchilardan qarzimiz",
     dataPath: (data) => data?.debts,
     color: "#fa8c16",
     icon: WarningOutlined,

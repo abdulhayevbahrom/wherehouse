@@ -21,7 +21,7 @@ export const agentApi = api.injectEndpoints({
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: ["Supplier"],
+      invalidatesTags: ["Supplier", "Dashboard"],
     }),
 
     // /supplier/debt/:id
@@ -39,7 +39,7 @@ export const agentApi = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Supplier"],
+      invalidatesTags: ["Supplier", "Dashboard"],
     }),
   }),
 });

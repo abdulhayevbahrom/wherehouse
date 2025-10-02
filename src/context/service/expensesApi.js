@@ -26,7 +26,7 @@ export const ExpenseApi = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Expense"],
+      invalidatesTags: ["Expense", "Dashboard"],
     }),
 
     updateExpense: builder.mutation({
@@ -35,7 +35,7 @@ export const ExpenseApi = api.injectEndpoints({
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: ["Expense"],
+      invalidatesTags: ["Expense", "Dashboard"],
     }),
 
     deleteExpense: builder.mutation({
@@ -43,7 +43,7 @@ export const ExpenseApi = api.injectEndpoints({
         url: `/expense/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Expense"],
+      invalidatesTags: ["Expense", "Dashboard"],
     }),
   }),
 });
