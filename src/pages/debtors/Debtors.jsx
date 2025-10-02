@@ -2,14 +2,20 @@ import React, { useState } from "react";
 import {
   useGetAllTransactionsQuery,
   usePayDebtMutation,
+  useGetDebtorsQuery,
 } from "../../context/service/transactionApi";
 import { Button, Modal, Table, Form, Input } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 
 function Debtors() {
+  const { data: debtorsData } = useGetDebtorsQuery();
   const { data: transactionsData } = useGetAllTransactionsQuery();
   const [payDebt] = usePayDebtMutation();
+
+  console.log(debtorsData);
+
+  let debtors = debtorsData?.innerData || [];
 
   const [isProductsModalOpen, setIsProductsModalOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -34,26 +40,37 @@ function Debtors() {
     }
   };
 
-  // Faqat qarzdorlarni olish
-  const debtors = transactionsData?.innerData?.filter(
-    (t) => t.remainingDebt > 0
-  );
+  // // Faqat qarzdorlarni olish
+  // const debtors = transactionsData?.innerData?.filter(
+  //   (t) => t.remainingDebt > 0
+  // );
 
   const columns = [
     {
       title: "Agent",
-      dataIndex: ["agent", "fullname"],
+      dataIndex: ["fullname"],
       key: "fullname",
     },
     {
-      title: "Umumiy summa",
+      title: "Qarz (soldo)",
+      render: (v, record) => record?.initialDebt || 0,
+    },
+    {
+      title: "Jami",
       dataIndex: "paidAmount",
       key: "paidAmount",
+      render: (v, record) =>
+        record.products?.reduce((acc, p) => acc + p.price * p.quantity, 0),
     },
     {
       title: "Qoldiq qarz",
       dataIndex: "remainingDebt",
       key: "remainingDebt",
+    },
+    // umumiy qarz
+    {
+      title: "Umumiy qarz",
+      render: (v, record) => record?.totalRemainingDebt + record?.initialDebt,
     },
     {
       title: "Mahsulotlar",

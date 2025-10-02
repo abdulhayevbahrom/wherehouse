@@ -367,7 +367,7 @@ const StatCard = ({ title, value, icon: Icon, gradient, shadowColor }) => (
 );
 
 function Home() {
-  const [month, setMonth] = useState("2025-09");
+  const [month, setMonth] = useState(dayjs().format("YYYY-MM"));
   const { data, isLoading } = useGetDashboardQuery(month);
 
   // Kartalar ma'lumotlarini memoizatsiya qilish

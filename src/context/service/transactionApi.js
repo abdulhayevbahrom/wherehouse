@@ -8,7 +8,7 @@ export const adminApi = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Agent", "Ombor"],
+      invalidatesTags: ["Agent", "Ombor", "Supplier"],
     }),
 
     payDebt: builder.mutation({
@@ -17,12 +17,18 @@ export const adminApi = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Agent"],
+      invalidatesTags: ["Agent", "Supplier"],
     }),
 
     // /transaction/all
     getAllTransactions: builder.query({
       query: () => "/transaction/all",
+      providesTags: ["Agent"],
+    }),
+
+    // debtors
+    getDebtors: builder.query({
+      query: () => "/debtors",
       providesTags: ["Agent"],
     }),
   }),
@@ -32,4 +38,5 @@ export const {
   useGiveProductsToAgentMutation,
   usePayDebtMutation,
   useGetAllTransactionsQuery,
+  useGetDebtorsQuery,
 } = adminApi;

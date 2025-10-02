@@ -1,12 +1,19 @@
 import React from "react";
-import { Button, Table, Tag, Modal, Input, message } from "antd";
-import { useGetSuppliersQuery } from "../../context/service/supplierApi";
+import { Button, Table, Tag, Modal, Input, message, Form } from "antd";
+import {
+  useGetSuppliersQuery,
+  useUpdateSupplierMutation,
+} from "../../context/service/supplierApi";
 import {
   useGetOmborBySupplierQuery,
   usePaySupplierDebtMutation,
 } from "../../context/service/omborApi";
+import { EditOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
 
 function Suppliers() {
+  const [form] = Form.useForm();
+  const [updateSupplier] = useUpdateSupplierMutation();
   const { data, isLoading, isError } = useGetSuppliersQuery();
   const [supplierId, setSupplierId] = React.useState(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -25,6 +32,8 @@ function Suppliers() {
   } = useGetOmborBySupplierQuery(supplierId, {
     skip: !supplierId,
   });
+
+  const [openEditModal, setOpenEditModal] = React.useState(false);
 
   const suppliers = data?.innerData || [];
 
@@ -61,6 +70,20 @@ function Suppliers() {
       key: "phone",
     },
     {
+      title: "Qarz (soldo)",
+      dataIndex: "initialDebt",
+      key: "initialDebt",
+      render: (initialDebt) => (
+        <span
+          style={{
+            color: "red",
+          }}
+        >
+          {initialDebt}
+        </span>
+      ),
+    },
+    {
       title: "Balans",
       dataIndex: "balance",
       key: "balance",
@@ -78,7 +101,7 @@ function Suppliers() {
       title: "Holati",
       dataIndex: "status",
       key: "status",
-      render: (status) => {
+      render: (status, record) => {
         let color =
           status === "qarzdor"
             ? "red"
@@ -86,6 +109,20 @@ function Suppliers() {
             ? "green"
             : "default";
         return <Tag color={color}>{status}</Tag>;
+      },
+    },
+    {
+      title: "Umumiy qarz",
+      dataIndex: "status",
+      key: "status",
+      render: (status, record) => {
+        let color =
+          status === "qarzdor"
+            ? "red"
+            : status === "haqdor"
+            ? "green"
+            : "default";
+        return <Tag color={color}>{-record.initialDebt + record.balance}</Tag>;
       },
     },
     {
@@ -100,6 +137,19 @@ function Suppliers() {
         >
           Ko‘rish
         </Button>
+      ),
+    },
+    {
+      title: "amallar",
+      render: (_, record) => (
+        <Button
+          type="primary"
+          onClick={() => {
+            setOpenEditModal(record);
+            form.setFieldsValue(record);
+          }}
+          icon={<EditOutlined />}
+        ></Button>
       ),
     },
   ];
@@ -159,10 +209,54 @@ function Suppliers() {
   if (isLoading) return <p>Yuklanmoqda...</p>;
   if (isError) return <p>Xatolik yuz berdi</p>;
 
+  const handleUpdate = async (values) => {
+    try {
+      await updateSupplier({
+        _id: openEditModal._id,
+        data: {
+          ...values,
+          initialDebt: Number(values.initialDebt),
+        },
+      }).unwrap();
+      setOpenEditModal(false);
+      form.resetFields();
+      toast.success("Taminotchilar muvaffaqiyatli saqlandi");
+    } catch (err) {
+      toast.error(err?.data?.message || "Xatolik yuz berdi");
+    }
+  };
+
   return (
     <div style={{ padding: 20 }}>
       <h3>Taminotchilardan qarzlar</h3>
       <Table rowKey="_id" columns={columns} dataSource={suppliers} />
+
+      {/* edit  modal */}
+      <Modal
+        open={openEditModal}
+        setOpen={setOpenEditModal}
+        supplier={openEditModal}
+        footer={null}
+        onCancel={() => setOpenEditModal(false)}
+      >
+        <Form layout="vertical" form={form} onFinish={handleUpdate}>
+          <Form.Item name="fullname" label="Ism Familya">
+            <Input />
+          </Form.Item>
+          <Form.Item name="phone" label="Telefon">
+            <Input />
+          </Form.Item>
+          <Form.Item name="initialDebt" label="Qarz(soldo)">
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Saqlash
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+      {/* edit  modal */}
 
       {/* Ombor modal */}
       <Modal

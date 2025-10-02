@@ -76,6 +76,7 @@ function Agents() {
       login: record.login,
       password: record.password, // Parolni tahrirlash uchun eski qiymatni ko'rsatish (agar kerak bo'lmasa, bo'sh qoldirish mumkin)
       status: record.status,
+      initialDebt: record.initialDebt,
     });
     setIsModalOpen(true);
   };
@@ -86,10 +87,14 @@ function Agents() {
         await updateAgent({
           id: selectedAgent._id,
           ...values,
-          phone: "+998" + values.phone,
+          phone: values.phone,
+          initialDebt: +values.initialDebt,
         }).unwrap();
       } else {
-        await createAgent({ ...values }).unwrap();
+        await createAgent({
+          ...values,
+          initialDebt: +values.initialDebt,
+        }).unwrap();
       }
       setIsModalOpen(false);
       form.resetFields();
@@ -161,6 +166,14 @@ function Agents() {
             ]}
           >
             <Input placeholder="Passwordni kiriting" />
+          </Form.Item>
+
+          <Form.Item
+            label="Oldingi qarzi"
+            name="initialDebt"
+            rules={[{ required: false }]}
+          >
+            <Input type="number" placeholder="Oldingi qarzni kiriting" />
           </Form.Item>
 
           <Form.Item>

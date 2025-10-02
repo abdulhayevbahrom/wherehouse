@@ -12,7 +12,22 @@ export const agentApi = api.injectEndpoints({
       query: () => "/supplier/suppliers",
       providesTags: ["Supplier"],
     }),
+
+    // /supplier/update/:id
+
+    updateSupplier: builder.mutation({
+      query: ({ _id, data }) => ({
+        url: `/supplier/update/${_id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Supplier"],
+    }),
   }),
 });
 
-export const { useGetAllQuery, useGetSuppliersQuery } = agentApi;
+export const {
+  useGetAllQuery,
+  useGetSuppliersQuery,
+  useUpdateSupplierMutation,
+} = agentApi;
