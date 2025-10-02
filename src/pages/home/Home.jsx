@@ -426,7 +426,7 @@ function Home() {
                 marginBottom: "4px",
               }}
             >
-              📊 Dashboard
+              {/* Xisobotlar */}
             </h1>
             <p
               style={{
@@ -435,7 +435,7 @@ function Home() {
                 margin: 0,
               }}
             >
-              Biznesingiz uchun umumiy ko'rinish
+              {/* Biznesingiz uchun umumiy ko'rinish */}
             </p>
           </div>
           <div
@@ -455,9 +455,7 @@ function Home() {
                 fontWeight: "500",
                 color: "#595959",
               }}
-            >
-              📅 Davr:
-            </span>
+            ></span>
             <MonthPicker
               value={dayjs(month, "YYYY-MM")}
               onChange={(date) => {
