@@ -715,6 +715,8 @@ function Sale() {
                       size="small"
                       hoverable
                       style={{
+                        backgroundColor:
+                          product?.quantity > 50 ? "#fff" : "pink",
                         borderRadius: 8,
                         border: cart.find((item) => item._id === product._id)
                           ? "2px solid #1890ff"
