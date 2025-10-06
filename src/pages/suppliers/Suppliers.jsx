@@ -284,6 +284,10 @@ function Suppliers() {
 
   const suppliers = supplierDebtData?.innerData || [];
 
+  const [paymentHistory, setPaymentHistory] = useState(null);
+
+  console.log(suppliers);
+
   const handlePayment = async () => {
     if (!payAmount || isNaN(payAmount)) {
       return toast.error("To'lov summasini kiriting");
@@ -344,6 +348,19 @@ function Suppliers() {
           }}
         >
           To‘lov qilish
+        </Button>
+      ),
+    },
+    {
+      title: "To'lov tarixi",
+      render: (_, record) => (
+        <Button
+          type="primary"
+          onClick={() => {
+            setPaymentHistory(record.payments);
+          }}
+        >
+          To'lov tarixi
         </Button>
       ),
     },
@@ -494,6 +511,36 @@ function Suppliers() {
           placeholder="To'lov summasi"
           value={payAmount}
           onChange={(e) => setPayAmount(e.target.value)}
+        />
+      </Modal>
+
+      {/* // Payment History Modal */}
+      <Modal
+        title="To'lov tarixi"
+        open={!!paymentHistory}
+        onCancel={() => setPaymentHistory(null)}
+        footer={null}
+        width={600}
+        bodyStyle={{ maxHeight: "60vh", overflowY: "auto" }}
+      >
+        <Table
+          rowKey={(record, index) => index}
+          dataSource={paymentHistory || []}
+          pagination={false}
+          columns={[
+            {
+              title: "Sana",
+              dataIndex: "date",
+              key: "date",
+              render: (date) => new Date(date).toLocaleDateString("uz-UZ"),
+            },
+            {
+              title: "Summasi",
+              dataIndex: "amount",
+              key: "amount",
+              render: (amount) => amount.toLocaleString(),
+            },
+          ]}
         />
       </Modal>
     </div>

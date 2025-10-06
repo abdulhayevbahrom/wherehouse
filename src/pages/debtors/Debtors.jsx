@@ -144,7 +144,10 @@ function Debtors() {
               dataIndex: "products",
               key: "products",
               render: (products) =>
-                products?.map((p) => <div key={p._id}>{p.price}</div>),
+                products?.reduce(
+                  (total, p) => total + p.price * p.quantity,
+                  0
+                ) || 0,
             },
             {
               title: "Sana",
