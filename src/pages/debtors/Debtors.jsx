@@ -36,7 +36,7 @@ function Debtors() {
     },
     {
       title: "Qarz",
-      render: (v, record) => record?.debt || 0,
+      render: (v, record) => record?.debt?.toLocaleString() || 0,
     },
     {
       title: "Mahsulotlar",
@@ -130,7 +130,9 @@ function Debtors() {
               dataIndex: "products",
               key: "price",
               render: (products) =>
-                products.map((p) => <div key={p._id}>{p.price}</div>),
+                products.map((p) => (
+                  <div key={p._id}>{p?.price?.toLocaleString()}</div>
+                )),
             },
             {
               title: "Miqdori",
@@ -144,10 +146,9 @@ function Debtors() {
               dataIndex: "products",
               key: "products",
               render: (products) =>
-                products?.reduce(
-                  (total, p) => total + p.price * p.quantity,
-                  0
-                ) || 0,
+                products
+                  ?.reduce((total, p) => total + p.price * p.quantity, 0)
+                  .toLocaleString() || 0,
             },
             {
               title: "Sana",

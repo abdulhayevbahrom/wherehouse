@@ -286,8 +286,6 @@ function Suppliers() {
 
   const [paymentHistory, setPaymentHistory] = useState(null);
 
-  console.log(suppliers);
-
   const handlePayment = async () => {
     if (!payAmount || isNaN(payAmount)) {
       return toast.error("To'lov summasini kiriting");
@@ -300,8 +298,8 @@ function Suppliers() {
       toast.success("To'lov muvaffaqiyatli bajarildi");
       setIsPayModalOpen(false);
       setPayAmount("");
-      refetch();
     } catch (err) {
+      console.log(err);
       toast.error(err?.data?.message || "Xatolik yuz berdi");
     }
   };
@@ -320,7 +318,9 @@ function Suppliers() {
     {
       title: "Umumiy qarz",
       render: (status, record) => {
-        return <span style={{ color: "red" }}>{record?.debt}</span>;
+        return (
+          <span style={{ color: "red" }}>{record?.debt?.toLocaleString()}</span>
+        );
       },
     },
     {
@@ -394,7 +394,7 @@ function Suppliers() {
       dataIndex: "products",
       key: "price",
       render: (products) =>
-        products.map((p) => <div key={p._id}>{p.price}</div>),
+        products.map((p) => <div key={p._id}>{p.price?.toLocaleString()}</div>),
     },
     {
       title: "Miqdori",
@@ -438,7 +438,7 @@ function Suppliers() {
     <div style={{ padding: 20 }}>
       <h3>Taminotchilardan qarzlar</h3>
       <Table
-        rowKey="_id"
+        rowKey={(record, index) => index}
         columns={columns}
         dataSource={[...suppliers]}
         pagination={false}
@@ -485,7 +485,7 @@ function Suppliers() {
           <p style={{ textAlign: "center", padding: "20px" }}>Yuklanmoqda...</p>
         ) : (
           <Table
-            rowKey="_id"
+            rowKey={(record, index) => index}
             columns={omborColumns}
             dataSource={omborData?.innerData || []}
             pagination={false}

@@ -37,11 +37,21 @@ function Ombor() {
 
   const columns = [
     { title: "Nomi", dataIndex: "title", key: "title" },
-    { title: "Miqdori", dataIndex: "quantity", key: "quantity" },
-    { title: "Narxi", dataIndex: "price", key: "price" },
+    {
+      title: "Miqdori",
+      dataIndex: "quantity",
+      key: "quantity",
+      render: (v) => v.toLocaleString(),
+    },
+    {
+      title: "Narxi",
+      dataIndex: "price",
+      key: "price",
+      render: (v) => v.toLocaleString(),
+    },
     {
       title: "Umumiy summa",
-      render: (_, record) => record.quantity * record.price,
+      render: (_, record) => (record.quantity * record.price).toLocaleString(),
     },
     {
       title: "Taminotchi",
